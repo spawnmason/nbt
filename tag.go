@@ -12,6 +12,7 @@ package nbt
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/beito123/binary"
@@ -1632,6 +1633,15 @@ type Compound struct {
 	Value map[string]Tag
 }
 
+func (t *Compound) OrderedKeys() []string {
+	keys := make([]string, 0, len(t.Value))
+	for k := range t.Value {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 // ID returns tag id
 func (t *Compound) ID() byte {
 	return IDTagCompound
@@ -1669,7 +1679,8 @@ func (t *Compound) Read(n *Stream) (err error) {
 
 // Write writes tag for Stream
 func (t *Compound) Write(n *Stream) error {
-	for name, v := range t.Value {
+	for _, name := range t.OrderedKeys() {
+		v := t.Value[name]
 		v.SetName(name)
 		err := n.WriteTag(v)
 		if err != nil {
@@ -1764,8 +1775,8 @@ func (t *Compound) ToByteArray() ([]byte, error) {
 func (t *Compound) ToString() (string, error) {
 	str := "{ "
 
-	var c int
-	for name, v := range t.Value {
+	for i, name := range t.OrderedKeys() {
+		v := t.Value[name]
 		s, err := v.ToString()
 		if err != nil {
 			return "", err
@@ -1773,9 +1784,7 @@ func (t *Compound) ToString() (string, error) {
 
 		str += fmt.Sprintf("%s(%s): %s", name, GetTagName(v.ID()), s)
 
-		c++
-
-		if c != len(t.Value) { // not last
+		if i != len(t.Value)-1 { // not last
 			str += ", "
 		}
 	}

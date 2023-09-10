@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/beito123/nbt"
+	"github.com/spawnmason/nbt"
 )
 
 func main() {
