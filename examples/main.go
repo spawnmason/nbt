@@ -47,10 +47,7 @@ func read() {
 	}
 
 	// Convert to String // For dump
-	str, err := tag.ToString()
-	if err != nil {
-		panic(err)
-	}
+	str := tag.ToString()
 
 	// read data: { hardcore(Byte): 18, world_name(String): jagajaga }
 	fmt.Printf("read data: %s\n", str)

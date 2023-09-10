@@ -151,7 +151,7 @@ type Tag interface {
 	ToByteArray() ([]byte, error)
 
 	// ToString returns value as string
-	ToString() (string, error)
+	ToString() string
 
 	// ToIntArray returns value as []int32
 	ToIntArray() ([]int32, error)
@@ -376,8 +376,8 @@ func (t *End) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *End) ToString() (string, error) {
-	return "", nil
+func (t *End) ToString() string {
+	return ""
 }
 
 // ToIntArray returns value as []int32
@@ -504,8 +504,8 @@ func (t *Byte) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Byte) ToString() (string, error) {
-	return strconv.Itoa(int(t.Value)), nil
+func (t *Byte) ToString() string {
+	return strconv.Itoa(int(t.Value))
 }
 
 // ToIntArray returns value as []int32
@@ -632,8 +632,8 @@ func (t *Short) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Short) ToString() (string, error) {
-	return strconv.Itoa(int(t.Value)), nil
+func (t *Short) ToString() string {
+	return strconv.Itoa(int(t.Value))
 }
 
 // ToIntArray returns value as []int32
@@ -760,8 +760,8 @@ func (t *Int) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Int) ToString() (string, error) {
-	return strconv.Itoa(int(t.Value)), nil
+func (t *Int) ToString() string {
+	return strconv.Itoa(int(t.Value))
 }
 
 // ToIntArray returns value as []int32
@@ -888,8 +888,8 @@ func (t *Long) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Long) ToString() (string, error) {
-	return strconv.FormatInt(t.Value, 10), nil
+func (t *Long) ToString() string {
+	return strconv.FormatInt(t.Value, 10)
 }
 
 // ToIntArray returns value as []int32
@@ -1016,8 +1016,8 @@ func (t *Float) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Float) ToString() (string, error) {
-	return strconv.FormatFloat(float64(t.Value), 'E', -1, 32), nil
+func (t *Float) ToString() string {
+	return strconv.FormatFloat(float64(t.Value), 'E', -1, 32)
 }
 
 // ToIntArray returns value as []int32
@@ -1144,8 +1144,8 @@ func (t *Double) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Double) ToString() (string, error) {
-	return strconv.FormatFloat(t.Value, 'E', -1, 64), nil
+func (t *Double) ToString() string {
+	return strconv.FormatFloat(t.Value, 'E', -1, 64)
 }
 
 // ToIntArray returns value as []int32
@@ -1274,7 +1274,7 @@ func (t *ByteArray) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *ByteArray) ToString() (string, error) {
+func (t *ByteArray) ToString() string {
 	str := "[ "
 	for i, v := range t.Value {
 		str += strconv.Itoa(int(v))
@@ -1283,7 +1283,7 @@ func (t *ByteArray) ToString() (string, error) {
 		}
 	}
 
-	return str + " ]", nil // output: [10, 255, 25, 100]
+	return str + " ]" // output: [10, 255, 25, 100]
 }
 
 // ToIntArray returns value as []int32
@@ -1423,8 +1423,8 @@ func (t *String) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *String) ToString() (string, error) {
-	return t.Value, nil
+func (t *String) ToString() string {
+	return t.Value
 }
 
 // ToIntArray returns value as []int32
@@ -1598,22 +1598,17 @@ func (t *List) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *List) ToString() (string, error) {
+func (t *List) ToString() string {
 	str := GetTagName(t.ListType) + "[ "
 	for i, v := range t.Value {
-		s, err := v.ToString()
-		if err != nil {
-			return "", err
-		}
-
-		str += s
+		str += v.ToString()
 
 		if i != (len(t.Value) - 1) { // not last
 			str += ", "
 		}
 	}
 
-	return str + " ]", nil
+	return str + " ]"
 }
 
 // ToIntArray returns value as []int32
@@ -1772,24 +1767,19 @@ func (t *Compound) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *Compound) ToString() (string, error) {
+func (t *Compound) ToString() string {
 	str := "{ "
 
 	for i, name := range t.OrderedKeys() {
 		v := t.Value[name]
-		s, err := v.ToString()
-		if err != nil {
-			return "", err
-		}
-
-		str += fmt.Sprintf("%s(%s): %s", name, GetTagName(v.ID()), s)
+		str += fmt.Sprintf("%s(%s): %s", name, GetTagName(v.ID()), v.ToString())
 
 		if i != len(t.Value)-1 { // not last
 			str += ", "
 		}
 	}
 
-	return str + " }", nil
+	return str + " }"
 }
 
 // ToIntArray returns value as []int32
@@ -1907,7 +1897,7 @@ func (t *Compound) GetString(name string) (string, error) {
 		return "", errors.New("couldn't find tag " + name)
 	}
 
-	return tag.ToString()
+	return tag.ToString(), nil
 }
 
 // GetList gets a tag with name as []Tag
@@ -2101,7 +2091,7 @@ func (t *IntArray) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *IntArray) ToString() (string, error) {
+func (t *IntArray) ToString() string {
 	str := "[ "
 	for i, v := range t.Value {
 		str += strconv.Itoa(int(v))
@@ -2110,7 +2100,7 @@ func (t *IntArray) ToString() (string, error) {
 		}
 	}
 
-	return str + " ]", nil
+	return str + " ]"
 }
 
 // ToIntArray returns value as []int32
@@ -2269,7 +2259,7 @@ func (t *LongArray) ToByteArray() ([]byte, error) {
 }
 
 // ToString returns value as string
-func (t *LongArray) ToString() (string, error) {
+func (t *LongArray) ToString() string {
 	str := "[ "
 	for i, v := range t.Value {
 		str += strconv.Itoa(int(v))
@@ -2278,7 +2268,7 @@ func (t *LongArray) ToString() (string, error) {
 		}
 	}
 
-	return str + " ]", nil
+	return str + " ]"
 }
 
 // ToIntArray returns value as []int32
